@@ -58,8 +58,17 @@ header {
 }
 
 #contents{
-    display: flex;
+    display:flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
+    border: 2px solid cornflowerblue;
+    border-radius: 5px; /*how rounded is button */
+    background-color: white;
+    min-height: 5rem;
+    min-width:7rem;
+    padding:10px;
+    margin-right:35px;
+    margin-left:35px;
+
 }

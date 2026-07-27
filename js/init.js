@@ -1,7 +1,7 @@
 const dataUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSIhm3kS1xQfN_W2-TQY9q7vWMyhxa-xdyKCO1a8JLEHUgqT-NCo_xzXiFRyUa8dlqIJkjZ7rkQHBb4/pub?output=csv'
 
 // declare variables
-let mapOptions = {'centerLngLat': [-117.1249034752926,32.83010864129698],'startingZoomLevel':12}
+let mapOptions = {'centerLngLat': [-117.1249034752926,32.83010864129698],'startingZoomLevel':10}
 
 let zipcode_response_data = [];
 let zipcodePolygons;
@@ -212,16 +212,24 @@ function loadSurveyResponse(){
     });
 }
 
-function process_each_response_inzipcode(data){
-    let explanation = data["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
+function empty(elementname) {
+    elementname.innerHTML="";
+}
 
+function process_each_response_inzipcode(data){ //data is array of allResponses for given zipcode
+    region= document.getElementById("contents");
+    let explanation = data["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
     console.log(explanation)
-    
+    // replace old testimony with new
+    let explanationText= document.createTextNode(`${explanation}`);
+    region.appendChild(explanationText); 
+}
+
     
     // for (single_data of data){
     //     zipcode_response_data
     // }
-}
+
 
 function processData(results){
     // console.log(results) //for debugging: this can help us see if the results are what we want
@@ -268,9 +276,14 @@ function processData(results){
           },
           firstSymbolId   
         );
+
+        region= document.getElementById("contents");
+        let introText= document.createTextNode('Click a region on the map to get started.');
+        region.appendChild(introText);
+
         map.on('click', 'zips', function (event) { //event is click
         //   let target_content = Document.getElementById("awesomeInfoWindow") //div in ()
-        const new_content = document.createElement("div");
+        //const new_content = document.createElement("div");
         //   console.log(event.features[0].properties.zip)
         let zipcode_of_clicked_polygon = event.features[0].properties.zip
         console.log('zipcode_of_clicked_polygon')
@@ -288,11 +301,11 @@ function processData(results){
 
         // let explanation = surveyData["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
 
-        filteredZipcodeResponses.forEach(
-            data => process_each_response_inzipcode(data)
-        )
+        empty(region); // will empty after clicking map region
 
-          document.getElementById("contents").appendChild(new_content);
+        filteredZipcodeResponses.forEach(
+            data => process_each_response_inzipcode(data) // will fill with regional testimonies
+        )
         });
 
         map.on('click', 'zips', function (event) { //event is click
