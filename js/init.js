@@ -25,7 +25,47 @@ function addMarker(lat,lng,title,message){
    return message
 }
 
-addMarker(32.83020780894479, -117.12492493296276, 'Kaiser Permanente San Diego Medical Center', 'Address: 9455 Clairemont Mesa Blvd, San Diego, CA 92123')
+//adding custom icon to map
+
+const geojson = {
+    'type': 'FeatureCollection',
+    'features': [
+        {
+            'type': 'Feature',
+            'properties': {
+                'message': 'Medical',
+                'iconSize': [60, 60]
+            },
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-117.12492493296276, 32.83020780894479]
+            }
+        },
+    ]
+};
+
+geojson.features.forEach((marker) => {
+    // create a DOM element for the marker
+    const el = document.createElement('div');
+    el.className = 'marker';
+    el.style.backgroundImage =
+        `url(https://healthy.kaiserpermanente.org/content/dam/kporg/final/images/places/medical-facility/scal/san-diego-medical-center.jpg${
+            marker.properties.iconSize.join('/')
+        }/)`;
+    el.style.width = `${marker.properties.iconSize[0]}px`;
+    el.style.height = `${marker.properties.iconSize[1]}px`;
+    new maplibregl.Popup()
+            .setHTML(marker.properties.message);
+    //el.addEventListener('click', () => {
+        //(marker.properties.message);
+    new maplibregl.Marker({element: el})
+        .setLngLat(marker.geometry.coordinates)
+        .addTo(map);
+});
+
+
+
+//addMarker(32.83020780894479, -117.12492493296276, 'Kaiser Permanente San Diego Medical Center', 'Address: 9455 Clairemont Mesa Blvd, San Diego, CA 92123')
 
 fetch('js/ZIP_CODES_20260725.geojson').then(
     response => response.json()
@@ -216,20 +256,14 @@ function empty(elementname) {
     elementname.innerHTML="";
 }
 
-function process_each_response_inzipcode(data){ //data is array of allResponses for given zipcode
+function process_each_response_inzipcode(data){ //data is array of objects (individual entries) for given zipcode
     region= document.getElementById("contents");
-    let explanation = data["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
+    let explanation = data["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"];
     console.log(explanation)
     // replace old testimony with new
-    let explanationText= document.createTextNode(`${explanation}`);
-    region.appendChild(explanationText); 
-}
-
+    explanationText= document.createTextNode(`${explanation}`);
+    region.appendChild(explanationText) };
     
-    // for (single_data of data){
-    //     zipcode_response_data
-    // }
-
 
 function processData(results){
     // console.log(results) //for debugging: this can help us see if the results are what we want
@@ -305,7 +339,7 @@ function processData(results){
 
         filteredZipcodeResponses.forEach(
             data => process_each_response_inzipcode(data) // will fill with regional testimonies
-        )
+        ) // data is an array of objects
         });
 
         map.on('click', 'zips', function (event) { //event is click
@@ -316,4 +350,4 @@ function processData(results){
             .setHTML(`<h3>${surveyStuff.zip}    Average ratings</h3><p>${surveyStuff.averageRating}</p>`)
             .addTo(map);
         });
-}
+    }
