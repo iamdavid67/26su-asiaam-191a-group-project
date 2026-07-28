@@ -11,7 +11,7 @@ html {
 
 html, body {
     height: 80vh;
-    padding: 1rem;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -32,13 +32,36 @@ main {
     grid-area: main;
 }
 
-#title-bar {
-  background-color: #222;
-  color: white;
-  padding: 12px;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: left;
+.title-bar {
+    background-color: #5c4033;
+    color: white;
+    padding: 12px;
+    
+    display: grid;
+    row-gap: 12px;
+    justify-items: center;
+}
+
+.title-bar h1 {
+    font-size: 24px;
+    text-align: center;
+}
+
+.title-bar nav {
+    display: grid;
+    gap: 72px;
+    grid-auto-flow: column;
+}
+
+.title-bar a {
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+}
+
+.title-bar a:hover {
+    text-decoration: underline;
 }
 
 .portfolio {
