@@ -32,8 +32,13 @@ main {
     grid-area: main;
 }
 
-header {
-    grid-area: header;
+#title-bar {
+  background-color: #222;
+  color: white;
+  padding: 12px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: left;
 }
 
 .portfolio {
