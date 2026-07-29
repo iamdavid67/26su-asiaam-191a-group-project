@@ -15,6 +15,27 @@ const map = new maplibregl.Map({
     zoom: mapOptions.startingZoomLevel
 });
 
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+class GradientLegendControl {
+    onAdd(map) {
+        this.map = map;
+        this.container = document.createElement("div");
+        this.container.className = "maplibregl-ctrl maplibregl-ctrl-group legend";
+        this.container.innerHTML = `
+        <div class="legend-title">Rating</div>
+        <div class="legend-gradient"></div>
+        <div class="legend-labels">
+            <span>1</span>
+            <span>5</span>
+        </div>
+        `;
+        return this.container;
+    }
+}
+
+map.addControl(new GradientLegendControl(), "bottom-left");
+
 function addMarker(lat,lng,title,message){
     let popup_message = `<h2>${title}</h2> <p>${message}</p>`
     new maplibregl.Marker({color:"purple"})
@@ -106,8 +127,8 @@ joinSurveyDataToZipcodePolygons()
 function addToZipcode(surveyData){
     // filter out no zipcode
     // console.log('running add to zipcode')
-    console.log('copy me!')
-    console.log(surveyData);
+    //console.log('copy me!')
+    //console.log(surveyData);
 
     if (surveyData['lat']){
         let zipcode = surveyData["What is your home zip code? \n\n你家的邮政编码是多少？"]
@@ -115,12 +136,11 @@ function addToZipcode(surveyData){
         let word_rating = surveyData["How would you rate this translation service?\n\n您如何评价这项翻译服务？"]
         let explanation = surveyData["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
         let services = surveyData["During my visit, I was offered...\n\n在访问期间，我获赠了……"]
-        console.log(`language: \n ${language}`)
-        console.log(`checking: \n ${zipcode}`)
-        console.log(surveyData)
+        //console.log(`language: \n ${language}`)
+        //console.log(`checking: \n ${zipcode}`)
+        //console.log(surveyData)
 
         let rating = convertRatingWordToNumerical(word_rating);
-        console.log(rating)
 
         addSurveyDataToZipcode(zipcode, language, rating, explanation, services,surveyData)
     }
@@ -252,12 +272,6 @@ function createButtons(lat,lng,title){
     document.getElementById("contents").appendChild(newButton);
 }
 
-
-// When the map is fully loaded, start adding GeoJSON data
-map.on('load', function() {
-    // Note: if you want to run something on map load.. probably add zipcode to map?
-});
-
 function loadSurveyResponse(){
     Papa.parse(dataUrl, {
         download: true, // Tells PapaParse to fetch the CSV data from the URL
@@ -350,7 +364,7 @@ function processData(results){
     document.getElementById("Bothbutton").appendChild(document.createTextNode(`${bothlangpercentage}%`));
     // console.log(results) //for debugging: this can help us see if the results are what we want
     results.forEach(feature => {
-        console.log('process data for each')
+        // console.log('process data for each')
         //console.log(feature) // for debugging: are we seeing each feature correctly?
         // assumes your geojson has a "title" and "message" attribute
         //let coordinates = feature.geometry.coordinates;
@@ -393,7 +407,7 @@ function processData(results){
           firstSymbolId   
         );
 
-        region= document.getElementById("contents");
+        let region = document.getElementById("contents");
         let introText= document.createTextNode('Click a region on the map to get started.');
         region.appendChild(introText);
 
@@ -402,8 +416,8 @@ function processData(results){
         //const new_content = document.createElement("div");
         //   console.log(event.features[0].properties.zip)
         let zipcode_of_clicked_polygon = event.features[0].properties.zip
-        console.log('zipcode_of_clicked_polygon')
-        console.log(zipcode_of_clicked_polygon)
+        //console.log('zipcode_of_clicked_polygon')
+        //console.log(zipcode_of_clicked_polygon)
 
         // this will allow you to do something with the specific zipcode you clicked 
         let zipcode_filter = zipcode_response_data.filter(function (entry) {
@@ -413,13 +427,13 @@ function processData(results){
         // this changes on click
         let filteredZipcodeResponses = zipcode_filter.allResponses;
 
-        console.log(filteredZipcodeResponses)
+        //console.log(filteredZipcodeResponses)
 
         
         // let explanation = surveyData["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
 
         empty(region); // will empty after clicking map region
-        prepare_response_container = `<h3>Responses</h3>`
+        let prepare_response_container = `<h3>Responses</h3>`
         let responses_div = "";
 
         generate_response_header(zipcode_of_clicked_polygon) 
@@ -434,7 +448,7 @@ function processData(results){
 
         map.on('click', 'zips', function (event) { //event is click
             let surveyStuff = event.features[0].properties
-            console.log(surveyStuff)
+            //console.log(surveyStuff)
             new maplibregl.Popup()
             .setLngLat(event.lngLat)
             .setHTML(`<h3>${surveyStuff.zip}    Average ratings</h3><p>${surveyStuff.averageRating}</p>`)
