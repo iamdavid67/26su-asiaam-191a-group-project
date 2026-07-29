@@ -402,7 +402,7 @@ function processData(results){
         // let explanation = surveyData["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
 
         empty(region); // will empty after clicking map region
-        prepare_response_container = `<h3>Responses</h3>`
+        let prepare_response_container = `<h3>Responses</h3>`
         let responses_div = "";
 
         generate_response_header(zipcode_of_clicked_polygon) 
