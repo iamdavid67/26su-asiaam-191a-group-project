@@ -294,8 +294,18 @@ function process_each_response_inzipcode(data){ //data is array of objects (indi
     // return formatted_response
 };
 
+function poor_tally(individualentry){
+    let tally = 0;
+    if (individualentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor")) {
+        tally = tally + 1 
+        };
+    if (individualentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor")) {
+        tally = tally + 1 
+        };
+    return tally;
+    console.log(tally);
+    }
 
-    
 
 function format_each_response(response){
     console.log('formatting this response')
@@ -317,7 +327,27 @@ function LanguageButton(languagetype){
 LanguageButton("Chinese")
 
 
+
 function processData(results){
+    console.log(results);
+    const justMandarin = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Mandarin (普通话)"));
+    const justMandarin_verypoor = justMandarin.filter((Mandarinentry) => Mandarinentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
+    const justMandarin_poor = justMandarin.filter((Mandarinentry) => Mandarinentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
+    let Mandarinpercentage = 100*(justMandarin_verypoor.length + justMandarin_poor.length) / justMandarin.length;
+    console.log(Mandarinpercentage);
+    const justCanto = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Cantonese (广东话)"));
+    const justCanto_verypoor = justCanto.filter((Cantoentry) => Cantoentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
+    const justCanto_poor = justCanto.filter((Cantoentry) => Cantoentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
+    let Cantopercentage = 100*(justCanto_verypoor.length + justCanto_poor.length) / justCanto.length;
+    console.log(Cantopercentage);
+    document.getElementById("Mandarinbutton").appendChild(document.createTextNode(`${Mandarinpercentage}%`));
+    document.getElementById("Cantonesebutton").appendChild(document.createTextNode(`${Cantopercentage}%`));
+    const bothlang = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Mandarin and Cantonese (普通话与粤语)"));
+    const bothlang_verypoor = bothlang.filter((entry) => entry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
+    const bothlang_poor = bothlang.filter((entry) => entry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
+    let bothlangpercentage = 100*(bothlang_verypoor.length + bothlang_poor.length) / bothlang.length;
+    console.log(bothlangpercentage);
+    document.getElementById("Bothbutton").appendChild(document.createTextNode(`${bothlangpercentage}%`));
     // console.log(results) //for debugging: this can help us see if the results are what we want
     results.forEach(feature => {
         console.log('process data for each')
@@ -385,6 +415,7 @@ function processData(results){
 
         console.log(filteredZipcodeResponses)
 
+        
         // let explanation = surveyData["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
 
         empty(region); // will empty after clicking map region

@@ -66,45 +66,66 @@ header p{
 }
 
 #Mandarinbutton {
-    background-color: rgb(97, 170, 204);
-    color: white;
+    background-color: rgb(132, 175, 195);
+    color:rgb(147, 8, 8);
     border-radius: 20px;
     height: 80px;
     width: 300px;
     text-align: center;
-    font-size: 16px;
+    font-size: 23px;
     margin-top: 15px;
-    cursor: pointer
+    cursor: pointer;
+    font-weight:bold
 
 }
 
+#Mandarinbutton h3{
+    color: black;
+    font-size: large;
+    text-shadow:none;
+}
+
+
 #Cantonesebutton{
-    background-color: cadetblue;
-    color: white;
+    background-color: rgb(127, 158, 159);
+    color: rgb(147, 8, 8);
     border-radius: 20px;
     height: 80px;
     width: 300px;
     text-align: center;
-    font-size: 16px;
+    font-size: 23px;
     margin-top: 15px;
     cursor: pointer;
     margin-right: 40px;
     margin-left: 40px;
     margin-bottom: 40px;
+    font-weight:bold
+}
+
+#Cantonesebutton h3{
+    color: black;
+    font-size: large;
+    text-shadow:none;
 }
 
 #Bothbutton{
-    background-color: rgb(4, 65, 130);
-    color: white;
+    background-color:  rgb(123, 160, 126);
+    color: rgb(147, 8, 8);
     border-radius: 20px;
     height: 80px;
     width: 300px;
     text-align: center;
-    font-size: 16px;
+    font-size: 23px;
     margin-top: 15px;
-    cursor: pointer
+    cursor: pointer;
+    font-weight:bold
 
 }
+
+#Bothbutton h3{
+    color: black;
+    font-size: large;
+    text-shadow:none;
 }
 .portfolio {
     grid-area: portfolio;
