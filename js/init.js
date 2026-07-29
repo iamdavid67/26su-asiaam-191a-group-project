@@ -299,10 +299,22 @@ function process_each_response_inzipcode(data){ //data is array of objects (indi
     newResponse.innerHTML = 
     `<div class="card"> 
             <div class="container">
-            <h4><b>Why experience no good:</b></h4>
+            <h4><b>Rating: ${data["How would you rate this translation service?\n\n您如何评价这项翻译服务？"]}</b></h4>
             <p>${explanation}</p>
             </div>
     </div>`;
+    if (data["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor")){
+        newResponse.style.backgroundColor = "#f78b85"
+    }
+    if (data["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor")){
+        newResponse.style.backgroundColor = "#f7c285"
+    }
+    if (data["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Fair")){
+        newResponse.style.backgroundColor = "#f7ef85"
+    }
+    if (data["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Good")){
+        newResponse.style.backgroundColor = "#baceb2"
+    }
     document.getElementById("contents").appendChild(newResponse);
    
 
@@ -516,7 +528,7 @@ function processData(results){
             document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
             document.getElementById("languagestats").style.borderRadius = "10px";
       
-        });
+        }); 
 
         }
 
