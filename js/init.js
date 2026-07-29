@@ -6,8 +6,65 @@ let mapOptions = {'centerLngLat': [-117.1249034752926,32.83010864129698],'starti
 let zipcode_response_data = [];
 let zipcodePolygons;
 
+let mandarinSurveyData;
+let cantoneseSurveyData;
+let allSurveyData;
 
+let justMandarin;
+let justMandarin_verypoor;
+let justMandarin_poor;
+
+let justCanto;
+let justCanto_verypoor;
+let justCanto_poor;
+
+let bothlang;
+let bothlang_verypoor;
+let bothlang_poor;
+
+let currentLanguageFilter = null;
+let currentLanguageGroup = null;
+
+let serviceTypeLabels = ["in-person interpreter", "virtual interpreter", "bilingual staff", "translated paperwork", "other"]
+
+//
+let justMandarin_inperson
+let justMandarin_virtual
+let justMandarin_bilingual
+let justMandarin_forms
+let justMandarin_noneAbove
+let JM_inperson_proportion
+let JM_virtual_proportion
+let JM_bilingual_proportion
+let JM_forms_proportion
+let JM_noneAbove_proportion
+let justCanto_inperson
+let justCanto_virtual
+let justCanto_bilingual
+let justCanto_forms
+let justCanto_noneAbove
+let JC_inperson_proportion
+let JC_virtual_proportion
+let JC_bilingual_proportion
+let JC_forms_proportion
+let JC_noneAbove_proportion
+let bothlang_inperson
+let bothlang_virtual
+let bothlang_bilingual
+let bothlang_forms
+let bothlang_noneAbove
+let B_inperson_proportion
+let B_virtual_proportion
+let B_bilingual_proportion
+let B_forms_proportion
+let B_noneAbove_proportion
+
+let languageChart;
 loadSurveyResponse();
+
+let serviceColors = ['rgb(218, 165, 219)', 'rgb(152, 170, 234)', 'rgb(149, 167, 157)', 'rgb(103, 143, 146)','rgb(204, 209, 192)'
+    
+]
 
 const map = new maplibregl.Map({
     container: 'map',
@@ -36,6 +93,99 @@ class GradientLegendControl {
 }
 
 map.addControl(new GradientLegendControl(), "bottom-left");
+
+function drawBarChart(language,proportions){
+    currentLanguageFilter = language;
+    let targetLanguageGroup; 
+    if ("Mandarin")
+        targetLanguageGroup = justMandarin
+    if ("Cantonese")
+        targetLanguageGroup = justCanto
+    if ("Mandarin and Cantonese")
+        targetLanguageGroup = bothlang;
+
+    currentLanguageGroup = targetLanguageGroup
+
+    console.log(currentLanguageFilter)
+// we are taking in the variables in this order:
+// inperson virtual bilingual forms noneAbove
+    document.getElementById("languagestats").innerHTML =
+    `<h3>Services used by ${language} speakers: </h3>
+    <canvas id="serviceChart"></canvas>;
+    `
+    document.getElementById("languagestats").style.backgroundColor = " antiquewhite "
+    document.getElementById("languagestats").style.borderRadius = "10px";
+    
+    let chartContext = document.getElementById("serviceChart").getContext("2d")
+    console.log(chartContext)
+    if (languageChart){
+        languageChart.destroy();
+    }
+    languageChart = new Chart(
+    chartContext,
+    {
+      type: 'bar',
+      data: {
+        labels: serviceTypeLabels,
+        datasets: [
+          {
+            //label: "% of "+language+ " speakers",
+            data: proportions,
+            backgroundColor: serviceColors
+          }
+        ],
+      },
+    options: {
+        plugins:{
+            legend: {
+                display: false
+             },
+             tooltips: {
+                enabled: false
+            }
+
+        },
+        }
+    }
+  );
+  document.getElementById("serviceChart").addEventListener('click', filterMap, false);
+    
+}
+
+function filterMap(click){
+    let clickedElements = languageChart.getElementsAtEventForMode(
+        click,
+        'nearest',
+        {intersect:true},
+        true
+    );
+    console.log(clickedElements)
+    
+    if (clickedElements.length === 0){ // is any bar clicked? if not, do nothing
+        console.log('you didnt on the chart')
+        return;
+    }
+    
+    let clickedBarIndex = clickedElements[0].index;
+    let clickedServiceType = serviceTypeLabels[clickedBarIndex];
+    console.log(clickedServiceType)
+    console.log('this is the langauge currently selected')
+    console.log(`${currentLanguageFilter}`)
+
+    let matchingResponses = currentLanguageGroup.filter(
+        function (entry){
+            console.log(entry)
+            return entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"]
+        });
+
+    empty(document.getElementById("contents"));
+    generate_response_header(clickedServiceType);
+    matchingResponses.forEach(
+        data => process_each_response_inzipcode(data)
+    )
+
+}
+
 
 function addMarker(lat,lng,title,message){
     let popup_message = `<h2>${title}</h2> <p>${message}</p>`
@@ -106,7 +256,7 @@ fetch('js/ZIP_CODES_20260725.geojson').then(
         //     'data': data
         // });
         zipcodePolygons = data;
-
+        joinSurveyDataToZipcodePolygons() // after zipcode data loaded
 
         // addToZipcode(data);
 
@@ -123,7 +273,7 @@ fetch('js/ZIP_CODES_20260725.geojson').then(
     }
 );
 
-joinSurveyDataToZipcodePolygons()
+
 
 function addToZipcode(surveyData){
     // filter out no zipcode
@@ -351,27 +501,31 @@ function LanguageButton(languagetype){
     document.getElementById("contents").appendChild(newButton);
 };
 
-LanguageButton("Chinese")
+//LanguageButton("Chinese")
 
 
+let hello;
+
+let langauges= ["Mandarin (普通话)","Cantonese (广东话)","Mandarin and Cantonese (普通话与粤语)"]
 
 function processData(results){
     console.log(results);
-    const justMandarin = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Mandarin (普通话)"));
-    const justMandarin_verypoor = justMandarin.filter((Mandarinentry) => Mandarinentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
-    const justMandarin_poor = justMandarin.filter((Mandarinentry) => Mandarinentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
+    // let test 
+    justMandarin = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Mandarin (普通话)"));
+    justMandarin_verypoor = justMandarin.filter((Mandarinentry) => Mandarinentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
+    justMandarin_poor = justMandarin.filter((Mandarinentry) => Mandarinentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
     let Mandarinpercentage = 100*(justMandarin_verypoor.length + justMandarin_poor.length) / justMandarin.length;
     console.log(Mandarinpercentage);
-    const justCanto = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Cantonese (广东话)"));
-    const justCanto_verypoor = justCanto.filter((Cantoentry) => Cantoentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
-    const justCanto_poor = justCanto.filter((Cantoentry) => Cantoentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
+    justCanto = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Cantonese (广东话)"));
+    justCanto_verypoor = justCanto.filter((Cantoentry) => Cantoentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
+    justCanto_poor = justCanto.filter((Cantoentry) => Cantoentry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
     let Cantopercentage = 100*(justCanto_verypoor.length + justCanto_poor.length) / justCanto.length;
     console.log(Cantopercentage);
     document.getElementById("Mandarinbutton").appendChild(document.createTextNode(`${Mandarinpercentage}%`));
     document.getElementById("Cantonesebutton").appendChild(document.createTextNode(`${Cantopercentage}%`));
-    const bothlang = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Mandarin and Cantonese (普通话与粤语)"));
-    const bothlang_verypoor = bothlang.filter((entry) => entry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
-    const bothlang_poor = bothlang.filter((entry) => entry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
+    bothlang = results.filter((eachEntry) => eachEntry["Which language do you need translation help in?\n\n您需要哪种语言的翻译帮助？"].includes("Mandarin and Cantonese (普通话与粤语)"));
+    bothlang_verypoor = bothlang.filter((entry) => entry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Very poor"));
+    bothlang_poor = bothlang.filter((entry) => entry["How would you rate this translation service?\n\n您如何评价这项翻译服务？"].includes("Poor"));
     let bothlangpercentage = 100*(bothlang_verypoor.length + bothlang_poor.length) / bothlang.length;
     console.log(bothlangpercentage);
     document.getElementById("Bothbutton").appendChild(document.createTextNode(`${bothlangpercentage}%`));
@@ -474,59 +628,64 @@ function processData(results){
         document.getElementById("Mandarinbutton").addEventListener('click', function(){
             document.getElementById("languagestats").innerHTML="";
             console.log("mandarin button")
-            let justMandarin_inperson = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
-            let justMandarin_virtual = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
-            let justMandarin_bilingual = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
-            let justMandarin_forms = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
-            let justMandarin_noneAbove = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
-            let JM_inperson_proportion = 100* justMandarin_inperson.length / justMandarin.length;
-            let JM_virtual_proportion = 100* justMandarin_virtual.length / justMandarin.length;
-            let JM_bilingual_proportion = 100* justMandarin_bilingual.length / justMandarin.length;
-            let JM_forms_proportion = 100* justMandarin_forms.length / justMandarin.length;
-            let JM_noneAbove_proportion = 100* justMandarin_noneAbove.length / justMandarin.length;
+            justMandarin_inperson = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
+            justMandarin_virtual = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
+            justMandarin_bilingual = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
+            justMandarin_forms = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
+            justMandarin_noneAbove = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
+            JM_inperson_proportion = 100* justMandarin_inperson.length / justMandarin.length;
+            JM_virtual_proportion = 100* justMandarin_virtual.length / justMandarin.length;
+            JM_bilingual_proportion = 100* justMandarin_bilingual.length / justMandarin.length;
+            JM_forms_proportion = 100* justMandarin_forms.length / justMandarin.length;
+            JM_noneAbove_proportion = 100* justMandarin_noneAbove.length / justMandarin.length;
 
-            document.getElementById("languagestats").setHTML(`<h3>Services used by Mandarin speakers:</h3> ${JM_inperson_proportion}% had in-person interpreters.<br />${JM_virtual_proportion}% had virtual interpreters.<br />${JM_bilingual_proportion}% had bilingual staff.<br />${JM_forms_proportion}% had translated forms and paperwork.<br /> ${JM_noneAbove_proportion}% had other services.`);
-            document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
-            document.getElementById("languagestats").style.borderRadius = "10px" });
-           
+            // document.getElementById("languagestats").setHTML(`<h3>Services used by Mandarin speakers:</h3> ${JM_inperson_proportion}% had in-person interpreters.<br />${JM_virtual_proportion}% had virtual interpreters.<br />${JM_bilingual_proportion}% had bilingual staff.<br />${JM_forms_proportion}% had translated forms and paperwork.<br /> ${JM_noneAbove_proportion}% had other services.`);
+            // document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
+            // document.getElementById("languagestats").style.borderRadius = "10px" });
+            drawBarChart("Mandarin", [JM_inperson_proportion, JM_virtual_proportion, JM_bilingual_proportion, JM_forms_proportion, JM_noneAbove_proportion])});
+        
             //response after clicking cantonese
             document.getElementById("Cantonesebutton").addEventListener('click', function(){
             document.getElementById("languagestats").innerHTML="";
             console.log("mandarin button")
-            let justCanto_inperson = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
-            let justCanto_virtual = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
-            let justCanto_bilingual = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
-            let justCanto_forms = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
-            let justCanto_noneAbove = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
-            let JC_inperson_proportion = 100* justCanto_inperson.length / justCanto.length;
-            let JC_virtual_proportion = 100* justCanto_virtual.length / justCanto.length;
-            let JC_bilingual_proportion = 100* justCanto_bilingual.length / justCanto.length;
-            let JC_forms_proportion = 100* justCanto_forms.length / justCanto.length;
-            let JC_noneAbove_proportion = 100* justCanto_noneAbove.length / justCanto.length;
+            justCanto_inperson = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
+            justCanto_virtual = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
+            justCanto_bilingual = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
+            justCanto_forms = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
+            justCanto_noneAbove = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
+            JC_inperson_proportion = 100* justCanto_inperson.length / justCanto.length;
+            JC_virtual_proportion = 100* justCanto_virtual.length / justCanto.length;
+            JC_bilingual_proportion = 100* justCanto_bilingual.length / justCanto.length;
+            JC_forms_proportion = 100* justCanto_forms.length / justCanto.length;
+            JC_noneAbove_proportion = 100* justCanto_noneAbove.length / justCanto.length;
 
-            document.getElementById("languagestats").setHTML(`<h3>Services used by Cantonese speakers:</h3> ${JC_inperson_proportion}% had in-person interpreters.<br />${JC_virtual_proportion}% had virtual interpreters.<br />${JC_bilingual_proportion}% had bilingual staff.<br />${JC_forms_proportion}% had translated forms and paperwork.<br /> ${JC_noneAbove_proportion}% had other services.`);
-            document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
-            document.getElementById("languagestats").style.borderRadius = "10px";
-      
+            // document.getElementById("languagestats").setHTML(`<h3>Services used by Cantonese speakers:</h3> ${JC_inperson_proportion}% had in-person interpreters.<br />${JC_virtual_proportion}% had virtual interpreters.<br />${JC_bilingual_proportion}% had bilingual staff.<br />${JC_forms_proportion}% had translated forms and paperwork.<br /> ${JC_noneAbove_proportion}% had other services.`);
+            // document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
+            // document.getElementById("languagestats").style.borderRadius = "10px";
+            drawBarChart("Cantonese", [JC_inperson_proportion, JC_virtual_proportion, JC_bilingual_proportion, JC_forms_proportion, JC_noneAbove_proportion]);
+
         });
             //response after clicking both languages
              document.getElementById("Bothbutton").addEventListener('click', function(){
             document.getElementById("languagestats").innerHTML="";
             console.log("both button")
-            let bothlang_inperson = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
-            let bothlang_virtual = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
-            let bothlang_bilingual = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
-            let bothlang_forms = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
-            let bothlang_noneAbove = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
-            let B_inperson_proportion = 100* bothlang_inperson.length / bothlang.length;
-            let B_virtual_proportion = 100* bothlang_virtual.length / bothlang.length;
-            let B_bilingual_proportion = 100* bothlang_bilingual.length / bothlang.length;
-            let B_forms_proportion = 100* bothlang_forms.length / bothlang.length;
-            let B_noneAbove_proportion = 100* bothlang_noneAbove.length / bothlang.length;
+            bothlang_inperson = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
+            bothlang_virtual = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
+            bothlang_bilingual = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
+            bothlang_forms = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
+            bothlang_noneAbove = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
+            B_inperson_proportion = 100* bothlang_inperson.length / bothlang.length;
+            B_virtual_proportion = 100* bothlang_virtual.length / bothlang.length;
+            B_bilingual_proportion = 100* bothlang_bilingual.length / bothlang.length;
+            B_forms_proportion = 100* bothlang_forms.length / bothlang.length;
+            B_noneAbove_proportion = 100* bothlang_noneAbove.length / bothlang.length;
 
-            document.getElementById("languagestats").setHTML(`<h3>Services used by Cantonese speakers:</h3> ${B_inperson_proportion}% had in-person interpreters.<br />${B_virtual_proportion}% had virtual interpreters.<br />${B_bilingual_proportion}% had bilingual staff.<br />${B_forms_proportion}% had translated forms and paperwork.<br /> ${B_noneAbove_proportion}% had other services.`);
-            document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
-            document.getElementById("languagestats").style.borderRadius = "10px";
+            //document.getElementById("languagestats").setHTML(`<h3>Services used by Cantonese speakers:</h3> ${B_inperson_proportion}% had in-person interpreters.<br />${B_virtual_proportion}% had virtual interpreters.<br />${B_bilingual_proportion}% had bilingual staff.<br />${B_forms_proportion}% had translated forms and paperwork.<br /> ${B_noneAbove_proportion}% had other services.`);
+            //document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
+            //document.getElementById("languagestats").style.borderRadius = "10px";
+
+            drawBarChart("Mandarin and Cantonese", [B_inperson_proportion, B_virtual_proportion, B_bilingual_proportion, B_forms_proportion, B_noneAbove_proportion]);
+
       
         }); 
 
