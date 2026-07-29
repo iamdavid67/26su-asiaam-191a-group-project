@@ -97,7 +97,7 @@ header p{
     cursor: pointer
 
 }
-}
+
 .portfolio {
     grid-area: portfolio;
     display: flex;
