@@ -92,7 +92,7 @@ header p{
     margin-right: 40px;
     margin-left: 40px;
     margin-bottom: 40px;
-    font-weight:bold
+    font-weight:bold;
 }
 
 #Cantonesebutton h3{
@@ -111,9 +111,9 @@ header p{
     font-size: 23px;
     margin-top: 15px;
     cursor: pointer;
-    font-weight:bold
-
+    font-weight:bold;
 }
+
 
 #Bothbutton h3{
     color: black;
@@ -209,3 +209,17 @@ header p{
   padding: 2px 16px;
 }
 
+#languagestats {
+    text-align: center;
+    background-color:antiquewhite;
+    width:500px;
+    margin-left:465px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    opacity: 0.80
+
+}
+
+#languagestats h3{
+    color: black;
+}

@@ -12,6 +12,17 @@
         <!-- MapLibreGL's JavaScript-->
         <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
         <script src="js/papaparse.js"></script>
+
+         <!-- Leaflet's css-->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+        <!-- Leaflet's JavaScript-->
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="js/papaparse.js"></script>
+
+        <!-- step 1. add the Chart.js library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"></script>
+
     </head>
 
     <body>
@@ -21,9 +32,10 @@
             <button type = "button", id="Mandarinbutton"> <h3>Mandarin</h3></button>
             <button type = "button", id="Cantonesebutton"> <h3>Cantonese</h3></button>
             <button type = "button", id="Bothbutton"> <h3>Both languages</h3></button>
-
-        </header>
+         <div id = "languagestats"></div>
+    
         
+
         <main>
             <div class="portfolio">
                 <div id="contents"></div>

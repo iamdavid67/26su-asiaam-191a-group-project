@@ -6,6 +6,7 @@ let mapOptions = {'centerLngLat': [-117.1249034752926,32.83010864129698],'starti
 let zipcode_response_data = [];
 let zipcodePolygons;
 
+
 loadSurveyResponse();
 
 const map = new maplibregl.Map({
@@ -457,7 +458,69 @@ function processData(results){
             surveyStuff.allResponses.forEach((oneentry) => {
                 displayEntryOfZipcodes(oneentry)})
             })
-    }
+            //response after clicking mandarin
+        document.getElementById("Mandarinbutton").addEventListener('click', function(){
+            document.getElementById("languagestats").innerHTML="";
+            console.log("mandarin button")
+            let justMandarin_inperson = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
+            let justMandarin_virtual = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
+            let justMandarin_bilingual = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
+            let justMandarin_forms = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
+            let justMandarin_noneAbove = justMandarin.filter((Mandarinentry) => Mandarinentry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
+            let JM_inperson_proportion = 100* justMandarin_inperson.length / justMandarin.length;
+            let JM_virtual_proportion = 100* justMandarin_virtual.length / justMandarin.length;
+            let JM_bilingual_proportion = 100* justMandarin_bilingual.length / justMandarin.length;
+            let JM_forms_proportion = 100* justMandarin_forms.length / justMandarin.length;
+            let JM_noneAbove_proportion = 100* justMandarin_noneAbove.length / justMandarin.length;
+
+            document.getElementById("languagestats").setHTML(`<h3>Services used by Mandarin speakers:</h3> ${JM_inperson_proportion}% had in-person interpreters.<br />${JM_virtual_proportion}% had virtual interpreters.<br />${JM_bilingual_proportion}% had bilingual staff.<br />${JM_forms_proportion}% had translated forms and paperwork.<br /> ${JM_noneAbove_proportion}% had other services.`);
+            document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
+            document.getElementById("languagestats").style.borderRadius = "10px" });
+           
+            //response after clicking cantonese
+            document.getElementById("Cantonesebutton").addEventListener('click', function(){
+            document.getElementById("languagestats").innerHTML="";
+            console.log("mandarin button")
+            let justCanto_inperson = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
+            let justCanto_virtual = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
+            let justCanto_bilingual = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
+            let justCanto_forms = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
+            let justCanto_noneAbove = justCanto.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
+            let JC_inperson_proportion = 100* justCanto_inperson.length / justCanto.length;
+            let JC_virtual_proportion = 100* justCanto_virtual.length / justCanto.length;
+            let JC_bilingual_proportion = 100* justCanto_bilingual.length / justCanto.length;
+            let JC_forms_proportion = 100* justCanto_forms.length / justCanto.length;
+            let JC_noneAbove_proportion = 100* justCanto_noneAbove.length / justCanto.length;
+
+            document.getElementById("languagestats").setHTML(`<h3>Services used by Cantonese speakers:</h3> ${JC_inperson_proportion}% had in-person interpreters.<br />${JC_virtual_proportion}% had virtual interpreters.<br />${JC_bilingual_proportion}% had bilingual staff.<br />${JC_forms_proportion}% had translated forms and paperwork.<br /> ${JC_noneAbove_proportion}% had other services.`);
+            document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
+            document.getElementById("languagestats").style.borderRadius = "10px";
+      
+        });
+            //response after clicking both languages
+             document.getElementById("Bothbutton").addEventListener('click', function(){
+            document.getElementById("languagestats").innerHTML="";
+            console.log("both button")
+            let bothlang_inperson = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("In-person interpreter (现场口译员)"));
+            let bothlang_virtual = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Virtual interpreter (虚拟口译员)"));
+            let bothlang_bilingual = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Bilingual staff"));
+            let bothlang_forms = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("Forms/papers translated"));
+            let bothlang_noneAbove = bothlang.filter((entry) => entry["During my visit, I was offered...\n\n在访问期间，我获赠了……"].includes("None of the above"));
+            let B_inperson_proportion = 100* bothlang_inperson.length / bothlang.length;
+            let B_virtual_proportion = 100* bothlang_virtual.length / bothlang.length;
+            let B_bilingual_proportion = 100* bothlang_bilingual.length / bothlang.length;
+            let B_forms_proportion = 100* bothlang_forms.length / bothlang.length;
+            let B_noneAbove_proportion = 100* bothlang_noneAbove.length / bothlang.length;
+
+            document.getElementById("languagestats").setHTML(`<h3>Services used by Cantonese speakers:</h3> ${B_inperson_proportion}% had in-person interpreters.<br />${B_virtual_proportion}% had virtual interpreters.<br />${B_bilingual_proportion}% had bilingual staff.<br />${B_forms_proportion}% had translated forms and paperwork.<br /> ${B_noneAbove_proportion}% had other services.`);
+            document.getElementById("languagestats").style.backgroundColor= " rgb(188, 187, 187)";
+            document.getElementById("languagestats").style.borderRadius = "10px";
+      
+        });
+
+        }
+
+    
 
 function generate_response_header(zipcode){
     const response_header = document.createElement("div");
