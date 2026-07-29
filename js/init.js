@@ -24,11 +24,11 @@ class GradientLegendControl {
         this.container = document.createElement("div");
         this.container.className = "maplibregl-ctrl maplibregl-ctrl-group legend";
         this.container.innerHTML = `
-        <div class="legend-title">Rating</div>
+        <div class="legend-title">Experience</div>
         <div class="legend-gradient"></div>
         <div class="legend-labels">
-            <span>1</span>
-            <span>5</span>
+            <span>Very poor</span>
+            <span>Good</span>
         </div>
         `;
         return this.container;
@@ -464,7 +464,7 @@ function processData(results){
             //console.log(surveyStuff)
             new maplibregl.Popup()
             .setLngLat(event.lngLat)
-            .setHTML(`<h3>${surveyStuff.zip}    Average ratings</h3><p>${surveyStuff.averageRating}</p>`)
+            .setHTML(`<h3>${surveyStuff.zip} </h3> <h4>  Average rating: ${surveyStuff.averageRating}</h4>`)
             .addTo(map);
             console.log(surveyStuff) 
             surveyStuff.allResponses.forEach((oneentry) => {
