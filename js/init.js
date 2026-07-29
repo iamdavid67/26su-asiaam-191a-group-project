@@ -34,7 +34,7 @@ const geojson = {
             'type': 'Feature',
             'properties': {
                 'message': 'Medical',
-                'iconSize': [60, 60]
+                'iconSize': [262, 262]
             },
             'geometry': {
                 'type': 'Point',
@@ -44,16 +44,23 @@ const geojson = {
     ]
 };
 
+
+
+
+
 geojson.features.forEach((marker) => {
     // create a DOM element for the marker
     const el = document.createElement('div');
     el.className = 'marker';
     el.style.backgroundImage =
-        `url(https://healthy.kaiserpermanente.org/content/dam/kporg/final/images/places/medical-facility/scal/san-diego-medical-center.jpg${
-            marker.properties.iconSize.join('/')
-        }/)`;
-    el.style.width = `${marker.properties.iconSize[0]}px`;
-    el.style.height = `${marker.properties.iconSize[1]}px`;
+        `url(kp_logo.png)`;
+    el.style.backgroundSize = "contain";
+    el.style.width = "60px";
+    el.style.height = "60px";
+    el.style.borderRadius = "100%"; // fix later
+    el.style.border = "solid"; //type
+    el.style.borderWidth = "1px";
+    //el.style.iconSize(2)
     new maplibregl.Popup()
             .setHTML(marker.properties.message);
     //el.addEventListener('click', () => {
@@ -61,6 +68,7 @@ geojson.features.forEach((marker) => {
     new maplibregl.Marker({element: el})
         .setLngLat(marker.geometry.coordinates)
         .addTo(map);
+        //maybe legend?
 });
 
 
@@ -134,7 +142,17 @@ function convertRatingWordToNumerical(rating){
     }
     return value
 }
-
+init()
+function init(){
+    const el = document.createElement('div');
+    el.className = 'custom-marker'; // Add a class for styling
+    el.style.backgroundImage = 'url(kp_logo.png)'; // Custom icon URL
+    el.style.width = '25px'; // Width of the marker
+    el.style.height = '25px'; // Height of the marker
+    new maplibregl.Marker({ element: el })
+        .setLngLat([-117.12492493296276, 32.73020780894479]) // Set marker position
+        .addTo(map); // Add marker to the map
+}
 function addSurveyDataToZipcode(zipcode, language, rating, explanation, services,surveyData){
     //"92410" = [{language:"mandarin": 0,"cantonese":2, "averageRating":"4.4"}]
     //"92411" = [{language:"mandarin": 1,"cantonese":0}]
@@ -197,7 +215,6 @@ function joinSurveyDataToZipcodePolygons(){
         polygon.properties.averageRating = zipcodeEntry.averageRating;
         polygon.properties.languageCounts = zipcodeEntry.languageCounts
         polygon.properties.allResponses = zipcodeEntry.allResponses
-        // console.log(polygon)
         polygonsWithData.push(polygon)
     }
     return{
@@ -255,15 +272,50 @@ function loadSurveyResponse(){
 function empty(elementname) {
     elementname.innerHTML="";
 }
+init()
+
 
 function process_each_response_inzipcode(data){ //data is array of objects (individual entries) for given zipcode
-    region= document.getElementById("contents");
+    console.log(data)
+    const newResponse = document.createElement("div");
     let explanation = data["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"];
     console.log(explanation)
-    // replace old testimony with new
-    explanationText= document.createTextNode(`${explanation}`);
-    region.appendChild(explanationText) };
+    newResponse.id = "div"+explanation;
+    newResponse.innerHTML = 
+    `<div class="card"> 
+            <div class="container">
+            <h4><b>Why experience no good:</b></h4>
+            <p>${explanation}</p>
+            </div>
+    </div>`;
+    document.getElementById("contents").appendChild(newResponse);
+   
+
+    // return formatted_response
+};
+
+
     
+
+function format_each_response(response){
+    console.log('formatting this response')
+    console.log(response)
+};
+
+
+function LanguageButton(languagetype){
+    console.log("starting buttons")
+    const newButton = document.createElement("button");
+    newButton.id = "hi";
+    newButton.innerHTML = languagetype;
+    newButton.addEventListener('click', function(){
+        console.log("pressed language button")
+        })
+    document.getElementById("contents").appendChild(newButton);
+};
+
+LanguageButton("Chinese")
+
 
 function processData(results){
     // console.log(results) //for debugging: this can help us see if the results are what we want
@@ -336,11 +388,18 @@ function processData(results){
         // let explanation = surveyData["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]
 
         empty(region); // will empty after clicking map region
+        prepare_response_container = `<h3>Responses</h3>`
+        let responses_div = "";
 
-        filteredZipcodeResponses.forEach(
+        generate_response_header(zipcode_of_clicked_polygon) 
+
+
+        filteredZipcodeResponses.forEach( // go through each individual response
             data => process_each_response_inzipcode(data) // will fill with regional testimonies
         ) // data is an array of objects
         });
+
+        // region.appendChild(`${prepare_response_container} ${responses_div}`)
 
         map.on('click', 'zips', function (event) { //event is click
             let surveyStuff = event.features[0].properties
@@ -349,5 +408,31 @@ function processData(results){
             .setLngLat(event.lngLat)
             .setHTML(`<h3>${surveyStuff.zip}    Average ratings</h3><p>${surveyStuff.averageRating}</p>`)
             .addTo(map);
-        });
+            console.log(surveyStuff) 
+            surveyStuff.allResponses.forEach((oneentry) => {
+                displayEntryOfZipcodes(oneentry)})
+            })
     }
+
+function generate_response_header(zipcode){
+    const response_header = document.createElement("div");
+    response_header.innerHTML =  `<h3>Responses for ${zipcode}</h3>`;
+    document.getElementById("contents").appendChild(response_header);
+
+}
+
+
+function displayEntryOfZipcodes(){
+
+    console.log("this zipcodes record:")
+    console.log(record)
+    //console.log(`${oneentry["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]}`)
+    const entrytext = document.createTextNode(`${oneentry["Why did you rate your experience this way?\n\n为什么你的体验是这样的？"]}`);
+    const newDiv=document.createElement("div")
+    newDiv.appendChild(entrytext);
+    const currentDiv = document.getElementById("contents");
+    document.body.insertBefore(newDiv, currentDiv);
+}
+
+    //let indexOfFirst = surveyStuff.allResponses(""Why did you rate your experience this way?\n\n为什么你的体验是这样的？"");
+    //console.log(indexOfFirst)
