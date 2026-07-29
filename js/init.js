@@ -102,7 +102,7 @@ function drawBarChart(language,proportions){
     if ("Cantonese")
         targetLanguageGroup = justCanto
     if ("Mandarin and Cantonese")
-        targetLanguageGroup = bothlang;
+        targetLanguageGroup = bothlang
 
     currentLanguageGroup = targetLanguageGroup
 
@@ -575,7 +575,7 @@ function processData(results){
         );
 
         let region = document.getElementById("contents");
-        let introText= document.createTextNode('Click a region on the map to get started.');
+        let introText= document.createTextNode('Click a zipcode region on the map to get started.');
         region.appendChild(introText);
 
         map.on('click', 'zips', function (event) { //event is click
